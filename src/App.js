@@ -96,7 +96,7 @@ function reducer(state, { type, payload }) {
       }
 
   default:
-    return state; // The single default case should be the last one
+    return state; 
 
       
      
