@@ -205,7 +205,7 @@ function App() {
             <li key={index}>{calculation}</li>
           ))}
         </ul>
-        <button onClick={() => setHistory([])}>Clear All</button>
+        <button onClick={() => setHistory([])}>Clear </button>
       </div>
     </div>
   );
