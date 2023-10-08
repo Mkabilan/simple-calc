@@ -144,10 +144,10 @@ function formatOperand(operand) {
 }
 
 
-// ...
 function App() {
-  const [{ currentOperand, previousOperand, operation }, dispatch] = useReducer(reducer, {} );
+  const [{ currentOperand, previousOperand, operation }, dispatch] = useReducer(reducer,{} );
   const [history, setHistory] = useState([]);
+  
 
   return (
     <div className="calculator-container">
@@ -209,12 +209,10 @@ function App() {
             <li key={index}>{calculation}</li>
           ))}
         </ul>
-        <button onClick={() => setHistory([])}>Clear All</button>
+        <button onClick={() => setHistory([])}>Clear </button>
       </div>
     </div>
   );
 }
 
 export default App;
-
-
