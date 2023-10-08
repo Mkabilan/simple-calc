@@ -144,8 +144,9 @@ function formatOperand(operand) {
 }
 
 
+// ...
 function App() {
-  const [{ currentOperand, previousOperand, operation }, dispatch] = useReducer(reducer,{} );
+  const [{ currentOperand, previousOperand, operation }, dispatch] = useReducer(reducer, {} );
   const [history, setHistory] = useState([]);
 
   return (
@@ -160,7 +161,10 @@ function App() {
           </div>
           <button
             className="span-two"
-            onClick={() => dispatch({ type: ACTIONS.CLEAR })}
+            onClick={() => {
+              setHistory([...history, "AC"]);
+              dispatch({ type: ACTIONS.CLEAR });
+            }}
           >
             AC
           </button>
@@ -205,10 +209,12 @@ function App() {
             <li key={index}>{calculation}</li>
           ))}
         </ul>
-        <button onClick={() => setHistory([])}>Clear </button>
+        <button onClick={() => setHistory([])}>Clear All</button>
       </div>
     </div>
   );
 }
 
 export default App;
+
+
