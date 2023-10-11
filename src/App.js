@@ -141,14 +141,14 @@ function App() {
     <div className="calculator-container">
       <div className="calculator">
         <div className="calculator-grid">
-         <div className="output">
-      <div className="previous-operand">
-        {seq && operation ? formatOperand(previousOperand) + " " + operation  : ''}
-      </div>
-      <div className="current-operand">
-        {currentOperand !== null ? formatOperand(currentOperand) : ''}
-      </div>
-    </div>
+        <div className="output">
+  <div className="previous-operand">
+    {seq}
+  </div>
+  <div className="current-operand">
+    {operation ? formatOperand(previousOperand) + " " : formatOperand(currentOperand)}
+  </div>
+</div>
           <button
             className="span-two"
             onClick={() => {
