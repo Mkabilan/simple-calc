@@ -133,7 +133,10 @@ function App() {
   const [{ currentOperand, previousOperand, operation, seq = "" }, dispatch] =
     useReducer(reducer, {});
   const [history, setHistory] = useState([]);
-
+  function clearAll() {
+    dispatch({ type: ACTIONS.CLEAR });
+    setHistory([]);
+  }
   return (
     <div className="calculator-container">
       <div className="calculator">
@@ -200,9 +203,10 @@ function App() {
             <li key={index}>{calculation}</li>
           ))}
         </ul>
-        <button onClick={() => setHistory([])}>Clear </button>
+        <button onClick={clearAll}>Clear All</button>
       </div>
     </div>
+        
   );
 }
 
