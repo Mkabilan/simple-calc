@@ -1,5 +1,4 @@
 import React, { useReducer, useState } from "react";
-
 import DigitButton from "./DigitButton";
 import OperationButton from "./OperationButton";
 import "./styles.css";
@@ -11,27 +10,50 @@ export const ACTIONS = {
   DELETE_DIGIT: "delete-digit",
   EVALUATE: "evaluate",
 };
-
 function reducer(state, { type, payload }) {
   switch (type) {
     case ACTIONS.ADD_DIGIT:
-      
-        const seqDigit = payload.seq + payload.digit;
-      
+      const seqDigit = payload.seq + payload.digit;
+      let newRealTimeResult; 
+
       if (payload.digit === "0" && state.currentOperand === "0") {
-        return { ...state, seq: seqDigit };
+        newRealTimeResult = evaluate({
+          currentOperand: seqDigit,
+          previousOperand: state.previousOperand,
+          operation: state.operation,
+        });
+        return { ...state, seq: seqDigit, realTimeResult: newRealTimeResult };
       }
       if (payload.digit === "." && state.currentOperand.includes(".")) {
-        return { ...state, seq: seqDigit };
+        newRealTimeResult = evaluate({
+          currentOperand: seqDigit,
+          previousOperand: state.previousOperand,
+          operation: state.operation,
+        });
+        return { ...state, seq: seqDigit, realTimeResult: newRealTimeResult };
       }
+
+      const currentOperand = state.currentOperand || "";
+      const newCurrentOperand = `${currentOperand}${payload.digit}`;
+      const newSeq = seqDigit;
+
+      newRealTimeResult = evaluate({
+        currentOperand: newCurrentOperand,
+        previousOperand: state.previousOperand,
+        operation: state.operation,
+      });
 
       return {
         ...state,
-        currentOperand: `${state.currentOperand || ""}${payload.digit}`,
-        seq: seqDigit,
+        currentOperand: newCurrentOperand,
+        seq: newSeq,
+        realTimeResult: newRealTimeResult,
       };
+
     case ACTIONS.CHOOSE_OPERATION:
       const seqOp = payload.seq + " " + payload.operation + " ";
+      let newRealTimeResultOp; 
+
       if (state.currentOperand == null && state.previousOperand == null) {
         return { ...state, seq: seqOp };
       }
@@ -50,9 +72,15 @@ function reducer(state, { type, payload }) {
           operation: payload.operation,
           previousOperand: state.currentOperand,
           currentOperand: null,
-          seq: seqOp
+          seq: seqOp,
         };
       }
+
+      newRealTimeResultOp = evaluate({
+        currentOperand: state.currentOperand,
+        previousOperand: state.previousOperand,
+        operation: payload.operation,
+      });
 
       return {
         ...state,
@@ -60,34 +88,52 @@ function reducer(state, { type, payload }) {
         operation: payload.operation,
         currentOperand: null,
         seq: seqOp,
+        realTimeResult: newRealTimeResultOp,
       };
+
     case ACTIONS.CLEAR:
       return {};
-    case ACTIONS.DELETE_DIGIT:
-      if (state.currentOperand == null) return state;
-      if (state.currentOperand.length === 1) {
-        return { ...state, currentOperand: null };
-      }
+      case ACTIONS.DELETE_DIGIT:
+        if (state.seq == null) return state;
+        if (state.seq.length === 1) {
+          return { ...state, seq: null, realTimeResult: null };
+        }
+      
+        const newSeqForDelete = state.seq.slice(0, -1);
+        const currentDigits = newSeqForDelete.split(" ").pop();
+      
+        const newRealTimeResultForDelete = evaluate({
+          currentOperand: currentDigits,
+          previousOperand: state.previousOperand,
+          operation: state.operation,
+        });
+      
+        return {
+          ...state,
+          seq: newSeqForDelete,
+          realTimeResult: newRealTimeResultForDelete,
+        };
+      
 
-      return {
-        ...state,
-        currentOperand: state.currentOperand.slice(0, -1),
-      };
-    case ACTIONS.EVALUATE:
-      if (
-        state.operation == null ||
-        state.currentOperand == null ||
-        state.previousOperand == null
-      ) {
-        return state;
-      }
-
-      return {
-        ...state,
-        previousOperand: null,
-        operation: null,
-        currentOperand: evaluate(state),
-      };
+      case ACTIONS.EVALUATE:
+        if (
+          state.operation == null ||
+          state.currentOperand == null ||
+          state.previousOperand == null
+        ) {
+          return state;
+        }
+        const result = evaluate(state);
+        return {
+          ...state,
+          previousOperand: null,
+          operation: null,
+          currentOperand: result,
+          seq: result,
+          realTimeResult: null,
+          showResult: true,
+        };
+      
 
     default:
       return state;
@@ -123,32 +169,30 @@ const INTEGER_FORMATTER = new Intl.NumberFormat("en-us", {
   maximumFractionDigits: 0,
 });
 function formatOperand(operand) {
-  if (operand == null) return;
+  if (operand == null) return "";
   const [integer, decimal] = operand.split(".");
   if (decimal == null) return INTEGER_FORMATTER.format(integer);
   return `${INTEGER_FORMATTER.format(integer)}.${decimal}`;
 }
 
 function App() {
-  const [{ currentOperand, previousOperand, operation, seq = "" }, dispatch] =
+  const [{ currentOperand, previousOperand, operation, seq = "", realTimeResult }, dispatch] =
     useReducer(reducer, {});
   const [history, setHistory] = useState([]);
+
   function clearAll() {
     dispatch({ type: ACTIONS.CLEAR });
     setHistory([]);
   }
+
   return (
     <div className="calculator-container">
       <div className="calculator">
         <div className="calculator-grid">
-        <div className="output">
-  <div className="previous-operand">
-    {seq}
-  </div>
-  <div className="current-operand">
-    {operation ? formatOperand(previousOperand) + " " : formatOperand(currentOperand)}
-  </div>
-</div>
+          <div className="output">
+            <div className="previous-operand">{seq}</div>
+            <div className="current-operand">{realTimeResult}</div>
+          </div>
           <button
             className="span-two"
             onClick={() => {
