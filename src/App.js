@@ -50,46 +50,46 @@ function reducer(state, { type, payload }) {
         realTimeResult: newRealTimeResult,
       };
 
-    case ACTIONS.CHOOSE_OPERATION:
-      const seqOp = payload.seq + " " + payload.operation + " ";
-      let newRealTimeResultOp; 
-
-      if (state.currentOperand == null && state.previousOperand == null) {
-        return { ...state, seq: seqOp };
-      }
-
-      if (state.currentOperand == null) {
+      case ACTIONS.CHOOSE_OPERATION:
+        const seqOp = payload.seq + " " + payload.operation + " ";
+        
+        if (state.currentOperand == null && state.previousOperand == null) {
+          return { ...state, seq: seqOp, operation: payload.operation };
+        }
+      
+        if (state.currentOperand == null) {
+          // If there's no current operand, just update the operation and the sequence.
+          return { ...state, operation: payload.operation, seq: seqOp };
+        }
+      
+        if (state.previousOperand == null) {
+          // If there's no previous operand, set the current operand as the previous operand,
+          // clear the current operand, and update the operation and sequence.
+          return {
+            ...state,
+            operation: payload.operation,
+            previousOperand: state.currentOperand,
+            currentOperand: null,
+            seq: seqOp,
+          };
+        }
+      
+        // If there are both operands and an operation, calculate the result and store it as the previous operand.
+        const newRealTimeResultOp = evaluate({
+          currentOperand: state.currentOperand,
+          previousOperand: state.previousOperand,
+          operation: state.operation,
+        });
+      
         return {
           ...state,
+          previousOperand: newRealTimeResultOp,
           operation: payload.operation,
-          seq: seqOp,
-        };
-      }
-
-      if (state.previousOperand == null) {
-        return {
-          ...state,
-          operation: payload.operation,
-          previousOperand: state.currentOperand,
           currentOperand: null,
           seq: seqOp,
+          realTimeResult: newRealTimeResultOp,
         };
-      }
-
-      newRealTimeResultOp = evaluate({
-        currentOperand: state.currentOperand,
-        previousOperand: state.previousOperand,
-        operation: payload.operation,
-      });
-
-      return {
-        ...state,
-        previousOperand: evaluate(state),
-        operation: payload.operation,
-        currentOperand: null,
-        seq: seqOp,
-        realTimeResult: newRealTimeResultOp,
-      };
+      
 
     case ACTIONS.CLEAR:
       return {};
@@ -255,3 +255,7 @@ function App() {
 }
 
 export default App;
+
+
+
+// corrected code
