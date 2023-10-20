@@ -37,6 +37,8 @@ export function evaluateExpression(expression) {
       case "/":
         operandStack.push(leftOperand / rightOperand);
         break;
+        default:
+    throw new Error("Unknown operator: " + operator);
     }
   };
 
