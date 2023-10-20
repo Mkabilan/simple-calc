@@ -22,9 +22,7 @@ export function evaluateExpression(expression) {
     const operator = operatorStack.pop();
     const rightOperand = operandStack.pop();
     const leftOperand = operandStack.pop();
-    if (operator === "/" && rightOperand === 0) {
-      throw new Error("Division by zero");
-    }
+    
 
     switch (operator) {
       case "+":
