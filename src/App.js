@@ -23,7 +23,7 @@ function reducer(state, { type, payload }) {
           ? state.calcStack.concat(payload.digit)
           : [payload.digit],
         res: res1,
-        showSteps: true, 
+        showSteps: true,
       };
 
     case ACTIONS.CHOOSE_OPERATION:
@@ -36,29 +36,37 @@ function reducer(state, { type, payload }) {
           ? state.calcStack.concat(payload.operation)
           : [payload.operation],
         res: res2,
-        showSteps: true, 
+        showSteps: true,
       };
 
     case ACTIONS.CLEAR:
       return {};
-     case ACTIONS.DELETE_DIGIT:
-  if (state.calcStack) {
-    const updatedStack = [...state.calcStack];
+    case ACTIONS.DELETE_DIGIT:
+      if (state.calcStack) {
+        const updatedStack = [...state.calcStack];
 
-    
-    updatedStack.pop();
+        const lastItem = updatedStack[updatedStack.length - 1];
 
-    return {
-      ...state,
-      calcStack: updatedStack,
-      res: evaluateExpression(updatedStack),
-    };
-  }
-  return state;
+        if (isDigit(lastItem)) {
+          const updatedDigit = String(lastItem).slice(0, -1);
+          if (updatedDigit) {
+            updatedStack[updatedStack.length - 1] = updatedDigit;
+          } else {
+            updatedStack.pop();
+          }
+        } else if (isDigit(updatedStack[updatedStack.length - 2])) {
+          updatedStack.pop();
+        } else {
+          updatedStack.pop();
+        }
 
-
-      
-      
+        return {
+          ...state,
+          calcStack: updatedStack,
+          res: evaluateExpression(updatedStack),
+        };
+      }
+      return state;
 
     case ACTIONS.EVALUATE:
       if (!state.calcStack) return state;
@@ -105,9 +113,7 @@ function App() {
       <div className="calculator">
         <div className="calculator-grid">
           <div className="output">
-            {showSteps ? (
-              <div className="previous-operand">{seq}</div>
-            ) : null}
+            {showSteps ? <div className="previous-operand">{seq}</div> : null}
             <div className="current-operand">{res}</div>
           </div>
           <button
