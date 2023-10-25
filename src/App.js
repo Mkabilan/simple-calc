@@ -23,7 +23,7 @@ function reducer(state, { type, payload }) {
           ? state.calcStack.concat(payload.digit)
           : [payload.digit],
         res: res1,
-        showSteps: true, // Show steps when digits are added after evaluating
+        showSteps: true, 
       };
 
     case ACTIONS.CHOOSE_OPERATION:
@@ -36,33 +36,29 @@ function reducer(state, { type, payload }) {
           ? state.calcStack.concat(payload.operation)
           : [payload.operation],
         res: res2,
-        showSteps: true, // Show steps when operators are added after evaluating
+        showSteps: true, 
       };
 
     case ACTIONS.CLEAR:
       return {};
+     case ACTIONS.DELETE_DIGIT:
+  if (state.calcStack) {
+    const updatedStack = [...state.calcStack];
 
-    case ACTIONS.DELETE_DIGIT:
-      if (state.calcStack) {
-        const updatedStack = [...state.calcStack];
-        const lastItem = updatedStack.pop();
+    
+    updatedStack.pop();
 
-        if (isDigit(lastItem)) {
-          const updatedDigit = String(lastItem).slice(0, -1);
-          if (updatedDigit) {
-            updatedStack.push(updatedDigit);
-          }
-        } else if (lastItem) {
-          updatedStack.push("");
-        }
+    return {
+      ...state,
+      calcStack: updatedStack,
+      res: evaluateExpression(updatedStack),
+    };
+  }
+  return state;
 
-        return {
-          ...state,
-          calcStack: updatedStack,
-          res: evaluateExpression(updatedStack),
-        };
-      }
-      return state;
+
+      
+      
 
     case ACTIONS.EVALUATE:
       if (!state.calcStack) return state;
