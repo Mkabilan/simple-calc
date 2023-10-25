@@ -1,28 +1,21 @@
 export function evaluateExpression(expression) {
-  if (isInvalid(expression)) return 0;
-  const lastChar = expression[expression.length - 1];
-  if (!isDigit(lastChar)) {
-    if (lastChar === "*" || lastChar === "/") {
-      expression.push("1");
-    } else {
-      expression.push("0");
-    }
-  }
+  const sanitizedExpression = sanitizeExpression(expression);
+  if (sanitizedExpression === null) return "";
+
   const operandStack = [];
   const operatorStack = [];
 
   const precedence = {
     "+": 1,
     "-": 1,
-    "*": 2,
-    "/": 2,
+    "*": 1,
+    "/": 1,
   };
 
   const applyOperator = () => {
     const operator = operatorStack.pop();
     const rightOperand = operandStack.pop();
     const leftOperand = operandStack.pop();
-    
 
     switch (operator) {
       case "+":
@@ -37,12 +30,12 @@ export function evaluateExpression(expression) {
       case "/":
         operandStack.push(leftOperand / rightOperand);
         break;
-        default:
-    throw new Error("Unknown operator: " + operator);
+      default:
+        throw new Error("Unknown operator: " + operator);
     }
-  };
+  }
 
-  for (const token of expression) {
+  for (const token of sanitizedExpression) {
     if (!isNaN(token)) {
       operandStack.push(parseFloat(token));
     } else if (token in precedence) {
@@ -72,11 +65,26 @@ export function isDigit(char) {
   return /^\d+(\.\d*)?$/.test(char);
 }
 
-function isInvalid(exp) {
-  if (!exp || !isDigit(exp[0] || isDigit(exp[1]))) {
-    console.log("Invalid expression");
-    return true;
-  } else {
-    return false;
+function sanitizeExpression(expression) {
+  let sanitizedExpression = [];
+  let isLastTokenOperator = true;
+
+  for (let i = 0; i < expression.length; i++) {
+    if (isDigit(expression[i])) {
+      let number = expression[i];
+      i++;
+      while (i < expression.length && (isDigit(expression[i]) || expression[i] === '.')) {
+        number += expression[i];
+        i++;
+      }
+      sanitizedExpression.push(number);
+      i--;
+      isLastTokenOperator = false;
+    } else if (expression[i] === '+' || expression[i] === '-' || expression[i] === '*' || expression[i] === '/') {
+      sanitizedExpression.push(expression[i]);
+      isLastTokenOperator = true;
+    }
   }
+
+  return isLastTokenOperator ? null : sanitizedExpression;
 }
